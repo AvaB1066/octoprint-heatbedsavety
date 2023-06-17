@@ -21,13 +21,71 @@ class HeatBedSavetyPlugin(octoprint.plugin.StartupPlugin,
 		self._onevents = ["OPERATIONAL"]
 		self._offevents = ["ERROR", "CLOSED_WITH_ERROR", ]
 
+	def on_after_startup(self):
+		self._logger.info("HeatBedSavety up")
+		self._initgpio()
+		if self._printer.get_state_id() in self._onevents:
+			self._bedpower(1)
+		else:
+			self._bedpower(0)
+
+	def on_shutdown(self):
+		self._bedpower(0)
+		GPIO.cleanup()
+
+	def on_event(self, event, data):
+		if self._gpioup == 1 and event == "PrinterStateChanged":
+			if data['state_id'] in self._onevents:
+				self._bedpower(1)
+			elif data['state_id'] in self._offevents:
+				self._bedpower(0)
+
+	def get_template_configs(self):
+		return [
+			dict(type="sidebar", custom_bindings=False),
+			dict(type="settings", custom_bindings=False)
+		]
+
+	def get_assets(self):
+		return dict(
+			js=["js/heatbedsavety.js"],
+			css=["css/heatbedsavety.css"]
+		)
+
+	def get_settings_defaults(self):
+		return dict(
+			pin=19,
+			maxtemp=120
+		)
+
+	@property
+	def pin(self):
+		return int(self._settings.get(["pin"]))
+
+	@property
+	def maxtemp(self):
+		return int(self._settings.get(["maxtemp"]))
 
 	def _initgpio(self):
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setwarnings(False)
-		GPIO.setup(26, GPIO.OUT)
+		GPIO.setup(self.pin, GPIO.OUT)
 		self._gpioup = 1
 
+	def _bedpower(self, state):
+		try:
+			if state == 1:
+				self._powerup = 1
+				GPIO.output(self.pin, GPIO.HIGH)
+				self._logger.info("BedPower connected")
+			else:
+				self._powerup = 0
+				GPIO.output(self.pin, GPIO.LOW)
+				self._logger.info("BedPower disconnected")
+
+			self._plugin_manager.send_plugin_message(self._identifier, dict(bedpower=self._powerup))
+		except:
+			self._logger.warning("GPIO already cleaned up")
 
 	def readtemperature(self, comm_instance, parsed_temperatures, *args, **kwargs):
 		current_temp = parsed_temperatures['B'][0]
