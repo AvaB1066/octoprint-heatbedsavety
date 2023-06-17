@@ -88,7 +88,7 @@ class HeatBedSavetyPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.warning("GPIO already cleaned up")
 
 	def readtemperature(self, comm_instance, parsed_temperatures, *args, **kwargs):
-		current_temp = parsed_temperatures['T'][0]
+		current_temp = parsed_temperatures['T0'][0]
 		if current_temp >= self.maxtemp:
 			self._bedpower(0)
 
