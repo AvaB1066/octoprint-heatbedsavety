@@ -90,10 +90,15 @@ class HeatBedSavetyPlugin(octoprint.plugin.StartupPlugin,
 	def readtemperature(self, comm_instance, parsed_temperatures, *args, **kwargs):
 		current_temp = parsed_temperatures['T0'][0]
 		if current_temp >= self.maxtemp:
-			self._bedpower(0)
+			GPIO.output(self.pin, GPIO.HIGH)
+		else
+			GPIO.output(self.pin, GPIO.LOW)
 
 		return parsed_temperatures
 
+	
+	
+	
 	@octoprint.plugin.BlueprintPlugin.route("/heatbedsavety", methods=["GET"])
 	def myreponse(self):
 		data = request.values["data"]
@@ -114,12 +119,12 @@ class HeatBedSavetyPlugin(octoprint.plugin.StartupPlugin,
 
 				# version check: github repository
 				type="github_release",
-				user="linux-paul",
+				user="avab1066",
 				repo="OctoPrint-Heatbedsavety",
 				current=self._plugin_version,
 
 				# update method: pip
-				pip="https://github.com/linux-paul/OctoPrint-Heatbedsavety/archive/{target_version}.zip"
+				pip="https://github.com/avaB1066/OctoPrint-Heatbedsavety/archive/{target_version}.zip"
 			)
 		)
 
