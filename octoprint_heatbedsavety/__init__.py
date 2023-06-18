@@ -89,7 +89,9 @@ class HeatBedSavetyPlugin(octoprint.plugin.StartupPlugin,
 
 	def readtemperature(self, comm_instance, parsed_temperatures, *args, **kwargs):
 		current_temp = parsed_temperatures['T0'][0]
-		if current_temp >= self.maxtemp:
+		if current_temp > self.maxtemp:
+			self._bedpower(1)
+		if current_temp < self.maxtemp:
 			self._bedpower(0)
 
 		return parsed_temperatures
