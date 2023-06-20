@@ -8,7 +8,7 @@ This plugin is designed for turning on a fan when your hot end reaches a certain
 Install via the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html)
 or manually using this URL:
 
-https://github.com/avab1066/OctoPrint-Hotend-Fan-Control/archive/master.zip
+https://github.com/avabeck-ley/OctoPrint-temp-triggered-fan/archive/master.zip
 
 ## Configuration
 
